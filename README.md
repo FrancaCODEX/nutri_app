@@ -30,6 +30,16 @@ Detalhes de cada funcionalidade em [`docs/FUNCIONALIDADES.md`](docs/FUNCIONALIDA
 - **Firebase** (fase 2): autenticação, Firestore, Storage (fotos) e Cloud Messaging (notificações)
 - **Tabela TACO** (NEPA/UNICAMP): base de composição de alimentos
 
+## Baixar APK de teste
+
+A cada push na `main`, o GitHub Actions gera um APK Android
+(`.github/workflows/build-apk.yml`). Para baixar:
+
+- **Releases → "APK de teste" → `nutri_app-teste.apk`**, ou
+- **Actions → "Gerar APK de teste" → execução mais recente → Artifacts**.
+
+No celular, permita a instalação de apps de fontes desconhecidas para instalar o APK.
+
 ## Como rodar
 
 Pré-requisitos: [Flutter SDK](https://docs.flutter.dev/get-started/install) 3.22 ou superior.
