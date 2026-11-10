@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/meal_plan.dart';
 import '../state/app_state.dart';
 import 'recipe_detail_screen.dart';
+import 'settings_screen.dart';
 
 /// Cardápio digital entregue na consulta, com opções alternativas.
 class MealPlanScreen extends StatelessWidget {
@@ -15,7 +16,18 @@ class MealPlanScreen extends StatelessWidget {
     final date = DateFormat("d 'de' MMMM 'de' y", 'pt_BR').format(plan.createdAt);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Meu cardápio')),
+      appBar: AppBar(
+        title: const Text('Meu cardápio'),
+        actions: [
+          IconButton(
+            tooltip: 'Configurações',
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

@@ -16,11 +16,12 @@ registro do que ele comeu e um canal direto com a nutricionista.
 
 | Área | O que faz | Status |
 |------|-----------|--------|
-| **Cardápio** | Cardápio digital entregue na consulta, refeição por refeição, com **opções alternativas** equivalentes e link para as receitas | ✅ v0.1 (dados de exemplo) |
-| **Receitas** | Receitas doces, salgadas, lanches e bebidas, com busca, filtro, ingredientes, preparo e calorias | ✅ v0.1 (dados de exemplo) |
-| **Diário alimentar** | Paciente escolhe o alimento numa lista da **Tabela TACO**, informa a quantidade em gramas e o app **calcula** calorias e macronutrientes do dia | ✅ v0.1 (amostra da TACO) |
-| **Chat** | Conversa direta com a nutricionista, com **fotos** e **notificações** | 🟡 v0.1 só texto local; fotos e notificações na fase 2 |
-| **Painel da nutricionista** | Cadastro de pacientes, cardápios e receitas; resposta ao chat | ⏳ fase 3 |
+| **Cardápio** | Cardápio digital entregue na consulta, refeição por refeição, com **opções alternativas** equivalentes e link para as receitas | ✅ (dados de exemplo) |
+| **Lembretes** | Notificação no horário de cada refeição do cardápio | ✅ v0.2 |
+| **Receitas** | Receitas doces, salgadas, lanches e bebidas, com busca, filtro e **favoritas** | ✅ (dados de exemplo) |
+| **Diário alimentar** | Busca nos **597 alimentos da Tabela TACO**, porção em **medidas caseiras** ou gramas, cálculo automático de calorias e macronutrientes, dados **salvos no celular** | ✅ v0.2 |
+| **Chat** | Conversa com a nutricionista, com **fotos** (câmera ou galeria) | 🟡 v0.2 salvo só no aparelho; entrega real e notificação de resposta com o Firebase (v0.3) |
+| **Painel da nutricionista** | Cadastro de pacientes, cardápios e receitas; resposta ao chat | ⏳ v0.4 |
 
 Detalhes de cada funcionalidade em [`docs/FUNCIONALIDADES.md`](docs/FUNCIONALIDADES.md).
 
@@ -39,6 +40,8 @@ A cada push na `main`, o GitHub Actions gera um APK Android
 - **Actions → "Gerar APK de teste" → execução mais recente → Artifacts**.
 
 No celular, permita a instalação de apps de fontes desconhecidas para instalar o APK.
+Os APKs de teste são assinados sempre com a mesma chave (`android/app/teste.keystore`),
+então uma versão nova instala **por cima** da anterior sem perder os dados.
 
 ## Como rodar
 
@@ -48,8 +51,8 @@ Pré-requisitos: [Flutter SDK](https://docs.flutter.dev/get-started/install) 3.2
 git clone https://github.com/FrancaCODEX/nutri_app.git
 cd nutri_app
 
-# gera as pastas de plataforma (android/, ios/, web/...) sem alterar lib/
-flutter create . --org br.com.nutriapp --project-name nutri_app
+# (opcional) gerar a pasta iOS, que ainda não está no repositório
+# flutter create . --org br.com.nutriapp --project-name nutri_app --platforms ios
 
 flutter pub get
 flutter run
@@ -68,10 +71,15 @@ lib/
 ├── main.dart                 # ponto de entrada
 ├── app.dart                  # tema e MaterialApp
 ├── models/                   # entidades (Food, Recipe, MealPlan, DiaryEntry, ChatMessage...)
-├── data/                     # dados de exemplo e amostra da TACO
-├── services/                 # regras de negócio (cálculo nutricional)
+├── data/                     # TACO, armazenamento local e dados de exemplo
+├── services/                 # regras de negócio (cálculo, busca, medidas, lembretes, fotos)
 ├── state/                    # estado da aplicação (AppState)
 └── screens/                  # telas
+assets/
+├── data/taco.json            # Tabela TACO completa (597 alimentos)
+└── icon/                     # ícone do app
+android/                      # projeto Android (assinatura de teste, notificações)
+tool/gerar_taco.py            # gera assets/data/taco.json a partir dos CSVs da TACO
 test/                         # testes automatizados
 docs/                         # documentação completa
 ```
@@ -88,6 +96,7 @@ docs/                         # documentação completa
 | [Firebase](docs/FIREBASE.md) | Configuração do backend, regras de segurança e notificações |
 | [Roadmap](docs/ROADMAP.md) | Fases de desenvolvimento |
 | [Contribuindo](docs/CONTRIBUINDO.md) | Padrões de código, branches e commits |
+| [Changelog](CHANGELOG.md) | O que mudou em cada versão |
 
 ## Aviso
 

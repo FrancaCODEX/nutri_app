@@ -14,18 +14,21 @@ class RecipesScreen extends StatefulWidget {
 
 class _RecipesScreenState extends State<RecipesScreen> {
   RecipeCategory? _category;
+  bool _onlyFavorites = false;
   String _query = '';
 
   @override
   Widget build(BuildContext context) {
-    final all = AppStateScope.of(context).recipes;
+    final state = AppStateScope.of(context);
+    final all = state.recipes;
     final q = _query.toLowerCase();
     final recipes = all.where((r) {
       final matchesCategory = _category == null || r.category == _category;
       final matchesQuery = q.isEmpty ||
           r.title.toLowerCase().contains(q) ||
           r.tags.any((t) => t.toLowerCase().contains(q));
-      return matchesCategory && matchesQuery;
+      final matchesFavorite = !_onlyFavorites || state.isFavorite(r.id);
+      return matchesCategory && matchesQuery && matchesFavorite;
     }).toList();
 
     return Scaffold(
@@ -38,7 +41,6 @@ class _RecipesScreenState extends State<RecipesScreen> {
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search),
                 hintText: 'Buscar receita',
-                border: OutlineInputBorder(),
               ),
               onChanged: (v) => setState(() => _query = v),
             ),
@@ -48,6 +50,16 @@ class _RecipesScreenState extends State<RecipesScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    avatar: Icon(_onlyFavorites ? Icons.favorite : Icons.favorite_border, size: 18),
+                    label: const Text('Favoritas'),
+                    selected: _onlyFavorites,
+                    showCheckmark: false,
+                    onSelected: (v) => setState(() => _onlyFavorites = v),
+                  ),
+                ),
                 _chip('Todas', null),
                 for (final c in RecipeCategory.values) _chip(c.label, c),
               ],
@@ -55,7 +67,11 @@ class _RecipesScreenState extends State<RecipesScreen> {
           ),
           Expanded(
             child: recipes.isEmpty
-                ? const Center(child: Text('Nenhuma receita encontrada'))
+                ? Center(
+                    child: Text(_onlyFavorites
+                        ? 'Toque no coração de uma receita para salvá-la aqui.'
+                        : 'Nenhuma receita encontrada'),
+                  )
                 : ListView.builder(
                     itemCount: recipes.length,
                     itemBuilder: (context, i) {
@@ -65,6 +81,12 @@ class _RecipesScreenState extends State<RecipesScreen> {
                         title: Text(r.title),
                         subtitle: Text(
                             '${r.kcalPerServing.round()} kcal/porção · ${r.prepMinutes} min'),
+                        trailing: IconButton(
+                          tooltip: 'Favoritar',
+                          icon: Icon(state.isFavorite(r.id) ? Icons.favorite : Icons.favorite_border,
+                              color: state.isFavorite(r.id) ? Colors.redAccent : null),
+                          onPressed: () => state.toggleFavorite(r.id),
+                        ),
                         onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => RecipeDetailScreen(recipe: r),
                         )),

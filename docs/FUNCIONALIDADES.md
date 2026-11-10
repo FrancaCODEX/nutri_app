@@ -29,7 +29,7 @@ Telas: `recipes_screen.dart`, `recipe_detail_screen.dart`
 | Busca por nome e tags | ✅ |
 | Detalhe: ingredientes, preparo, kcal/porção, tempo, rendimento | ✅ |
 | Foto da receita | 🟡 suportado no modelo; upload na fase 3 |
-| Favoritar receitas | ⏳ |
+| Favoritar receitas e filtrar favoritas | ✅ v0.2 |
 | Publicação pela nutricionista | ⏳ |
 
 **Regra:** somente a nutricionista publica receitas.
@@ -40,41 +40,55 @@ Telas: `diary_screen.dart`, `add_food_screen.dart` · Cálculo: `services/nutrit
 
 | Requisito | Status |
 |-----------|--------|
-| Buscar alimento na Tabela TACO (ignora acentos) | ✅ |
-| Informar quantidade em gramas e refeição | ✅ |
+| Buscar alimento na Tabela TACO completa (597 itens), ignorando acentos e ordem das palavras | ✅ v0.2 |
+| Informar quantidade em gramas **ou medida caseira**, com botões + / − | ✅ v0.2 |
+| Refeição sugerida pelo horário | ✅ v0.2 |
+| Atalho de alimentos usados recentemente | ✅ v0.2 |
 | Pré-visualizar kcal e macros antes de salvar | ✅ |
 | Total do dia vs. meta do cardápio, com barra de progresso | ✅ |
 | Agrupar por refeição | ✅ |
 | Navegar entre dias | ✅ |
-| Remover registro (arrastar para o lado) | ✅ |
-| Medidas caseiras (colher, concha, unidade) | ⏳ |
-| Nutricionista visualiza o diário do paciente | ⏳ |
-| Persistência | ⏳ fase 2 |
+| Remover registro (arrastar para o lado), com opção de desfazer | ✅ v0.2 |
 
-**Cálculo:** para cada registro, `valor = valor_por_100g × gramas / 100`.
+| Nutricionista visualiza o diário do paciente | ⏳ |
+| Dados salvos no aparelho | ✅ v0.2 |
+| Sincronização na nuvem | ⏳ v0.3 |
+
+**Cálculo:** `gramas = quantidade × peso_da_medida`; para cada registro, `valor = valor_por_100g × gramas / 100`.
 O total do dia é a soma dos registros.
 
-## 4. Chat com a nutricionista
+## 4. Lembretes de refeição
+
+Tela: `settings_screen.dart` · Serviço: `services/reminder_service.dart`
+
+| Requisito | Status |
+|-----------|--------|
+| Ligar/desligar nas configurações | ✅ v0.2 |
+| Notificação diária no horário de cada refeição do cardápio, com a opção principal | ✅ v0.2 |
+| Pedir permissão de notificação (Android 13+) | ✅ v0.2 |
+| Funciona sem internet e após reiniciar o celular | ✅ v0.2 |
+
+## 5. Chat com a nutricionista
 
 Tela: `chat_screen.dart`
 
 | Requisito | Status |
 |-----------|--------|
-| Enviar e exibir mensagens de texto | 🟡 local, sem servidor |
-| Enviar **fotos** (câmera ou galeria) | ⏳ fase 2 (image_picker + Storage) |
-| **Notificação** push de nova mensagem | ⏳ fase 2 (Firebase Cloud Messaging) |
+| Enviar e exibir mensagens de texto | 🟡 salvas no aparelho; entrega real na v0.3 |
+| Enviar **fotos** (câmera ou galeria) e ver em tela cheia | ✅ v0.2 (local); upload na v0.3 |
+| **Notificação** push de nova mensagem | ⏳ v0.3 (Firebase Cloud Messaging) |
 | Indicador de lida | ⏳ |
 | Horário de atendimento configurável | ⏳ |
 
 **Regra:** o chat é sempre entre um paciente e a nutricionista. Não há respostas automáticas.
 
-## 5. Contas e acesso (fase 2)
+## 6. Contas e acesso (v0.3)
 
 - Login por e-mail/senha (Firebase Auth).
 - Paciente entra por convite da nutricionista (sem cadastro aberto).
 - Papéis: `patient` e `nutritionist`.
 
-## 6. Painel da nutricionista (fase 3)
+## 7. Painel da nutricionista (v0.4)
 
 - Lista de pacientes e último acesso.
 - Criação de cardápios a partir de modelos.

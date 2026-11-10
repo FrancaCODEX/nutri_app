@@ -6,8 +6,10 @@ cerca de 600 alimentos consumidos no Brasil, com valores por 100 g da parte come
 
 ## Estado atual
 
-`lib/data/taco_foods.dart` contém uma **amostra de 21 alimentos** para
-desenvolvimento e testes. Os campos usados são:
+A tabela completa (**597 alimentos**) fica em `assets/data/taco.json`, empacotada
+no app e carregada na abertura por `lib/data/food_repository.dart`. Funciona sem internet.
+
+Os campos usados são:
 
 | Campo TACO | Campo no app |
 |------------|--------------|
@@ -17,21 +19,30 @@ desenvolvimento e testes. Os campos usados são:
 | Proteína (g) | `proteinPer100g` |
 | Carboidrato (g) | `carbsPer100g` |
 | Lipídeos (g) | `fatPer100g` |
+| Fibra alimentar (g) | `fiberPer100g` |
 
-## Importação completa (fase 2)
+## Como regenerar o arquivo
 
-1. Baixar a planilha oficial no site do NEPA/UNICAMP.
-2. Converter para CSV com as colunas acima e um `id` estável (ex.: número do alimento na TACO).
-3. Tratar valores especiais da tabela: `Tr` (traços) → `0`; `NA` / `*` → `0` (ou vazio, se o campo permitir).
-4. Gerar o campo `nameSearch` (minúsculas, sem acentos) para a busca.
-5. Importar para a coleção `foods` do Firestore com um script (Node.js ou Python com Admin SDK).
-6. Opcional: manter cópia local no app para busca offline.
+Os CSVs usados vêm do projeto aberto [taco-api](https://github.com/raulfdm/taco-api)
+(pasta `references/csv`), que reproduz a 4ª edição da TACO.
 
-## Medidas caseiras (futuro)
+```bash
+python3 tool/gerar_taco.py <pasta_com_food.csv_nutrients.csv_categories.csv>
+```
 
-A TACO trabalha em gramas. Para facilitar o registro, criar uma tabela própria de
-medidas (`1 colher de sopa de arroz = 25 g`, `1 concha de feijão = 140 g`...)
-validada pela nutricionista.
+O script trata os valores especiais da tabela (`Tr` = traços, `NA`, `*`, vazio) como `0`.
+O `id` de cada alimento é `taco_<número do alimento na TACO>` e **não deve mudar**,
+porque o diário guarda referências a ele.
+
+## Medidas caseiras
+
+A TACO trabalha em gramas. Para facilitar o registro, `lib/services/household_measures.dart`
+sugere medidas por palavra-chave no nome do alimento (ex.: arroz → colher de sopa 25 g,
+escumadeira 90 g; feijão → concha média 140 g; ovo → unidade 50 g) e, quando não há
+regra, pelo grupo do alimento. A opção em gramas está sempre disponível.
+
+> Os pesos são aproximados e **devem ser revisados pela nutricionista**.
+> Para ajustar, basta editar a lista `_rules` nesse arquivo.
 
 ## Aviso
 

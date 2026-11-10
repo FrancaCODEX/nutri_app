@@ -80,10 +80,23 @@ class _DiaryScreenState extends State<DiaryScreen> {
                     color: Colors.red.shade100,
                     child: const Icon(Icons.delete),
                   ),
-                  onDismissed: (_) => state.removeDiaryEntry(e.id),
+                  onDismissed: (_) {
+                    state.removeDiaryEntry(e.id);
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(SnackBar(
+                        content: Text('${e.food.name} removido'),
+                        action: SnackBarAction(
+                          label: 'Desfazer',
+                          onPressed: () => state.restoreDiaryEntry(e),
+                        ),
+                      ));
+                  },
                   child: ListTile(
                     title: Text(e.food.name),
-                    subtitle: Text('${e.grams.round()} g'),
+                    subtitle: Text(e.portionLabel == null
+                        ? '${e.grams.round()} g'
+                        : '${e.portionLabel} · ${e.grams.round()} g'),
                     trailing: Text(
                         '${NutritionCalculator.forPortion(e.food, e.grams).kcal.round()} kcal'),
                   ),

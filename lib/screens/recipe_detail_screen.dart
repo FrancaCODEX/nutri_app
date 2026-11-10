@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/recipe.dart';
+import '../state/app_state.dart';
 
 class RecipeDetailScreen extends StatelessWidget {
   const RecipeDetailScreen({super.key, required this.recipe});
@@ -10,8 +11,20 @@ class RecipeDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final state = AppStateScope.of(context);
+    final favorite = state.isFavorite(recipe.id);
     return Scaffold(
-      appBar: AppBar(title: Text(recipe.title)),
+      appBar: AppBar(
+        title: Text(recipe.title),
+        actions: [
+          IconButton(
+            tooltip: favorite ? 'Remover dos favoritos' : 'Favoritar',
+            icon: Icon(favorite ? Icons.favorite : Icons.favorite_border,
+                color: favorite ? Colors.redAccent : null),
+            onPressed: () => state.toggleFavorite(recipe.id),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

@@ -20,8 +20,8 @@
 | Pasta | Responsabilidade | Depende de |
 |-------|------------------|------------|
 | `models/` | Entidades imutáveis, sem lógica de UI | nada |
-| `services/` | Regras de negócio puras (ex.: `NutritionCalculator`) | `models/` |
-| `data/` | Fontes de dados (hoje, dados de exemplo e amostra da TACO) | `models/` |
+| `services/` | Regras de negócio e integrações com o aparelho: `NutritionCalculator`, `TextSearch`, `HouseholdMeasures`, `ReminderScheduler` (notificações), `PhotoService` (câmera/galeria) | `models/` |
+| `data/` | Fontes de dados: `FoodRepository` (TACO em `assets/`), `LocalStorage` (shared_preferences), dados de exemplo | `models/` |
 | `state/` | Estado da aplicação e operações (`AppState`) | `models/`, `data/` |
 | `screens/` | Telas e widgets | `state/`, `services/`, `models/` |
 
@@ -35,6 +35,33 @@ O app usa apenas o Flutter SDK:
 
 Isso evita dependências externas na fase inicial. Se o app crescer, a migração
 natural é para `provider` ou `riverpod`, mantendo a mesma separação de camadas.
+
+## Inicialização
+
+`main.dart` abre o armazenamento local e carrega a TACO em paralelo, cria o
+`AppState` com as dependências (`LocalStorage`, `LocalReminderService`, lista de
+alimentos) e reagenda os lembretes se estiverem ligados.
+
+As dependências são passadas no construtor, o que permite usar versões falsas
+nos testes (`test/helpers/fakes.dart`).
+
+## Persistência local (v0.2)
+
+| Dado | Chave no shared_preferences | Formato |
+|------|-----------------------------|---------|
+| Diário | `diary_v1` | lista JSON de `DiaryEntry` (com cópia do alimento) |
+| Chat | `messages_v1` | lista JSON de `ChatMessage` |
+| Favoritos | `favorite_recipes_v1` | lista de ids |
+| Lembretes ligados | `meal_reminders_enabled_v1` | bool |
+
+Fotos do chat são copiadas para `<documentos do app>/chat_photos/`.
+
+## Android
+
+- `android/app/build.gradle.kts`: *desugaring* (exigido pelas notificações) e
+  assinatura com `teste.keystore` para APKs de teste.
+- `AndroidManifest.xml`: permissões de notificação e *receivers* que reagendam os
+  lembretes após reiniciar o celular.
 
 ## Navegação
 
@@ -51,5 +78,9 @@ usam `Navigator.push`.
 
 ## Testes
 
-- Unitários para `services/` (ex.: `test/nutrition_calculator_test.dart`).
-- Widget tests para telas críticas (a fazer).
+| Arquivo | O que cobre |
+|---------|-------------|
+| `nutrition_calculator_test.dart` | cálculo de porções e totais |
+| `search_and_measures_test.dart` | carga da TACO, busca e medidas caseiras |
+| `app_state_test.dart` | persistência, desfazer, favoritos, chat, lembretes, recentes |
+| `widget_test.dart` | navegação e registro de alimento com medida caseira |

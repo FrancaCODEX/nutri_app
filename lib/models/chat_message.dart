@@ -15,6 +15,22 @@ class ChatMessage {
   final DateTime sentAt;
   final String? text;
 
-  /// Caminho/URL da foto enviada (ex.: foto do prato).
+  /// Caminho local da foto enviada (ex.: foto do prato).
   final String? imagePath;
+
+  factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
+        id: json['id'] as String,
+        author: MessageAuthor.values.byName(json['author'] as String),
+        sentAt: DateTime.parse(json['sentAt'] as String),
+        text: json['text'] as String?,
+        imagePath: json['imagePath'] as String?,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'author': author.name,
+        'sentAt': sentAt.toIso8601String(),
+        'text': text,
+        'imagePath': imagePath,
+      };
 }
