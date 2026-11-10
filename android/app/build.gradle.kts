@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "br.com.nutriapp.nutri_app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37 // exigido por flutter_local_notifications e androidx.core
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
