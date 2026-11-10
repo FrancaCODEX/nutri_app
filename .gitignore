@@ -1,0 +1,22 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Firebase (credenciais locais)
+google-services.json
+GoogleService-Info.plist
+lib/firebase_options.dart
+
+# SO
+.DS_Store
