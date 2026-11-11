@@ -23,15 +23,16 @@ registro do que ele comeu e um canal direto com a nutricionista.
 | **Lembretes** | Notificação no horário de cada refeição do cardápio | ✅ v0.2 |
 | **Receitas** | Receitas doces, salgadas, lanches e bebidas, com busca, filtro e **favoritas** | ✅ (dados de exemplo) |
 | **Diário alimentar** | Busca nos **597 alimentos da Tabela TACO**, porção em **medidas caseiras** ou gramas, cálculo automático de calorias e macronutrientes, dados **salvos no celular** | ✅ v0.2 |
-| **Chat** | Conversa com a nutricionista, com **fotos** (câmera ou galeria) | 🟡 salvo só no aparelho; entrega real e notificação de resposta com o Firebase (v0.4) |
-| **Área da nutricionista** | Editar o cardápio (refeições, horários, alternativas, metas) e criar receitas com foto | 🟡 v0.3 no aparelho; login e nuvem na v0.4 |
+| **Chat** | Conversa em tempo real entre paciente e nutricionista, com **fotos** | ✅ v0.4 (notificação com app fechado requer plano Blaze) |
+| **Login** | Nutricionista e pacientes com e-mail e senha; paciente criado pela nutricionista | ✅ v0.4 |
+| **Área da nutricionista** | Pacientes (cadastro, chat, cardápio, acompanhamento de diário e água) e receitas com foto | ✅ v0.4 |
 
 Detalhes de cada funcionalidade em [`docs/FUNCIONALIDADES.md`](docs/FUNCIONALIDADES.md).
 
 ## Tecnologias
 
 - **[Flutter](https://flutter.dev) / Dart**: um único código para Android e iOS
-- **Firebase** (fase 2): autenticação, Firestore, Storage (fotos) e Cloud Messaging (notificações)
+- **Firebase**: Authentication e Cloud Firestore (projeto `nutri-app-42226`) — ver [docs/FIREBASE.md](docs/FIREBASE.md)
 - **Tabela TACO** (NEPA/UNICAMP): base de composição de alimentos
 
 ## Baixar APK de teste
@@ -45,6 +46,14 @@ A cada push na `main`, o GitHub Actions gera um APK Android
 No celular, permita a instalação de apps de fontes desconhecidas para instalar o APK.
 Os APKs de teste são assinados sempre com a mesma chave (`android/app/teste.keystore`),
 então uma versão nova instala **por cima** da anterior sem perder os dados.
+
+## Primeiro uso
+
+1. Configurar o Firebase seguindo [docs/FIREBASE.md](docs/FIREBASE.md#configuração-inicial-uma-vez)
+   (regras de segurança e e-mail da nutricionista).
+2. A nutricionista instala o app, cria a conta ("primeiro acesso") e confirma o e-mail.
+3. Na aba **Pacientes**, cadastra cada paciente e envia o e-mail e a senha provisória.
+4. Monta o cardápio do paciente e publica receitas.
 
 ## Como rodar
 
@@ -74,7 +83,8 @@ lib/
 ├── main.dart                 # ponto de entrada
 ├── app.dart                  # tema e MaterialApp
 ├── models/                   # entidades (Food, Recipe, MealPlan, DiaryEntry, ChatMessage...)
-├── data/                     # TACO, armazenamento local e dados de exemplo
+├── firebase_options.dart     # configuração do projeto Firebase
+├── data/                     # Firestore, TACO, armazenamento local e dados de exemplo
 ├── services/                 # regras de negócio (cálculo, busca, medidas, lembretes, fotos)
 ├── state/                    # estado da aplicação (AppState)
 ├── widgets/                  # componentes reutilizáveis (imagem, gráfico semanal)
@@ -83,6 +93,7 @@ assets/
 ├── data/taco.json            # Tabela TACO completa (597 alimentos)
 └── icon/                     # ícone do app
 android/                      # projeto Android (assinatura de teste, notificações)
+firebase/firestore.rules      # regras de segurança (publicar no console)
 tool/gerar_taco.py            # gera assets/data/taco.json a partir dos CSVs da TACO
 test/                         # testes automatizados
 docs/                         # documentação completa
@@ -98,7 +109,7 @@ docs/                         # documentação completa
 | [Arquitetura](docs/ARQUITETURA.md) | Camadas, estado, fluxo de dados |
 | [Modelo de dados](docs/MODELO_DE_DADOS.md) | Entidades e coleções do Firestore |
 | [Tabela TACO](docs/TABELA_TACO.md) | Origem dos dados e importação completa |
-| [Firebase](docs/FIREBASE.md) | Configuração do backend, regras de segurança e notificações |
+| [Firebase](docs/FIREBASE.md) | **Configuração inicial**, acessos, regras, fotos, notificações e LGPD |
 | [Roadmap](docs/ROADMAP.md) | Fases de desenvolvimento |
 | [Contribuindo](docs/CONTRIBUINDO.md) | Padrões de código, branches e commits |
 | [Changelog](CHANGELOG.md) | O que mudou em cada versão |

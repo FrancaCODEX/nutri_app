@@ -20,6 +20,7 @@ class LocalStorage {
   static const _mealPlanKey = 'meal_plan_v1';
   static const _recipesKey = 'custom_recipes_v1';
   static const _waterKey = 'water_ml_by_day_v1';
+  static const _ownerKey = 'owner_uid_v1';
 
   final SharedPreferences _prefs;
 
@@ -74,6 +75,18 @@ class LocalStorage {
   }
 
   Future<void> saveWater(Map<String, int> water) => _prefs.setString(_waterKey, jsonEncode(water));
+
+  /// Conta dona dos dados guardados neste aparelho.
+  String? get ownerUid => _prefs.getString(_ownerKey);
+
+  /// Apaga os dados se outra conta entrar neste aparelho.
+  Future<void> claimFor(String uid) async {
+    if (ownerUid == uid) return;
+    await clear();
+    await _prefs.setString(_ownerKey, uid);
+  }
+
+  Future<void> clear() => _prefs.clear();
 
   List<T> _decodeList<T>(String key, T Function(Map<String, dynamic>) fromJson) {
     final raw = _prefs.getString(key);

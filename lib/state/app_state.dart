@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../data/local_storage.dart';
@@ -11,6 +13,8 @@ import '../models/meal_type.dart';
 import '../models/recipe.dart';
 import '../services/nutrition_calculator.dart';
 import '../services/reminder_service.dart';
+import '../utils/day_key.dart';
+import 'patient_backend.dart';
 import '../services/text_search.dart';
 
 /// Estado da aplicação.
@@ -39,6 +43,17 @@ class AppState extends ChangeNotifier {
 
   final List<Food> foods;
 
+  // Nuvem (paciente logado). Quando presente, é a fonte dos dados.
+  PatientBackend? _backend;
+  final List<StreamSubscription<Object?>> _subscriptions = [];
+  List<Recipe> _remoteRecipes = const [];
+  bool _remotePlanLoaded = false;
+
+  /// Chamado quando chega mensagem nova da nutricionista (para notificar).
+  void Function(ChatMessage message)? onNutritionistMessage;
+
+  bool get isConnected => _backend != null;
+
   MealPlan _mealPlan;
   final List<Recipe> _customRecipes;
   final Map<String, int> _water;
@@ -58,6 +73,77 @@ class AppState extends ChangeNotifier {
         text: 'Oi! Qualquer dúvida sobre o cardápio, me chama por aqui.',
       );
 
+  // ---------------------------------------------------------------- nuvem
+
+  /// Passa a usar os dados do paciente na nuvem.
+  void attachBackend(PatientBackend backend) {
+    detachBackend();
+    _backend = backend;
+    _diary.clear();
+    _water.clear();
+    _messages.clear();
+    _mealPlan = MealPlan.empty();
+    _remotePlanLoaded = false;
+    var messagesLoaded = false;
+
+    _subscriptions.addAll([
+      backend.mealPlan().listen((plan) {
+        _mealPlan = plan ?? MealPlan.empty();
+        _remotePlanLoaded = true;
+        notifyListeners();
+        refreshReminders();
+      }),
+      backend.recipes().listen((list) {
+        _remoteRecipes = list;
+        notifyListeners();
+      }),
+      backend.diary().listen((list) {
+        _diary
+          ..clear()
+          ..addAll(list..sort((a, b) => a.date.compareTo(b.date)));
+        notifyListeners();
+      }),
+      backend.water().listen((map) {
+        _water
+          ..clear()
+          ..addAll(map);
+        notifyListeners();
+      }),
+      backend.messages().listen((list) {
+        final known = _messages.map((m) => m.id).toSet();
+        final incoming = list.where((m) => m.author == MessageAuthor.nutritionist && !known.contains(m.id));
+        if (messagesLoaded) {
+          for (final m in incoming) {
+            onNutritionistMessage?.call(m);
+          }
+        }
+        messagesLoaded = true;
+        _messages
+          ..clear()
+          ..addAll(list);
+        notifyListeners();
+      }),
+    ]);
+    backend.touchLastSeen().catchError((_) {});
+  }
+
+  void detachBackend() {
+    for (final s in _subscriptions) {
+      s.cancel();
+    }
+    _subscriptions.clear();
+    _backend = null;
+  }
+
+  /// O cardápio da nuvem já foi carregado (evita mostrar "sem cardápio" antes da hora).
+  bool get mealPlanReady => _backend == null || _remotePlanLoaded;
+
+  @override
+  void dispose() {
+    detachBackend();
+    super.dispose();
+  }
+
   // ---------------------------------------------------------------- cardápio
 
   MealPlan get mealPlan => _mealPlan;
@@ -73,7 +159,8 @@ class AppState extends ChangeNotifier {
   // ---------------------------------------------------------------- receitas
 
   /// Receitas criadas pela nutricionista primeiro, depois as de exemplo.
-  List<Recipe> get recipes => [..._customRecipes.reversed, ...sampleRecipes];
+  List<Recipe> get recipes =>
+      _backend != null ? _remoteRecipes : [..._customRecipes.reversed, ...sampleRecipes];
 
   String newRecipeId() => 'r_${_nextId()}';
 
@@ -141,7 +228,7 @@ class AppState extends ChangeNotifier {
     required DateTime date,
     String? portionLabel,
   }) {
-    _diary.add(DiaryEntry(
+    _putDiaryEntry(DiaryEntry(
       id: _nextId(),
       food: food,
       grams: grams,
@@ -149,22 +236,30 @@ class AppState extends ChangeNotifier {
       date: date,
       portionLabel: portionLabel,
     ));
-    _storage.saveDiary(_diary);
+  }
+
+  void _putDiaryEntry(DiaryEntry entry) {
+    _diary.add(entry);
     notifyListeners();
+    if (_backend != null) {
+      _backend!.addDiaryEntry(entry);
+    } else {
+      _storage.saveDiary(_diary);
+    }
   }
 
   void removeDiaryEntry(String id) {
     _diary.removeWhere((e) => e.id == id);
-    _storage.saveDiary(_diary);
     notifyListeners();
+    if (_backend != null) {
+      _backend!.deleteDiaryEntry(id);
+    } else {
+      _storage.saveDiary(_diary);
+    }
   }
 
   /// Desfaz uma remoção.
-  void restoreDiaryEntry(DiaryEntry entry) {
-    _diary.add(entry);
-    _storage.saveDiary(_diary);
-    notifyListeners();
-  }
+  void restoreDiaryEntry(DiaryEntry entry) => _putDiaryEntry(entry);
 
   /// Total de kcal por dia nos últimos [days] dias (mais antigo primeiro).
   List<(DateTime, double)> kcalHistory(DateTime today, {int days = 7}) {
@@ -180,18 +275,19 @@ class AppState extends ChangeNotifier {
 
   // ---------------------------------------------------------------- água
 
-  static String _dayKey(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-
-  int waterFor(DateTime day) => _water[_dayKey(day)] ?? 0;
+  int waterFor(DateTime day) => _water[dayKey(day)] ?? 0;
 
   /// Soma (ou subtrai, se negativo) água do dia, sem ficar abaixo de zero.
   void addWater(DateTime day, int ml) {
-    final key = _dayKey(day);
+    final key = dayKey(day);
     final next = ((_water[key] ?? 0) + ml).clamp(0, 10000);
     _water[key] = next;
-    _storage.saveWater(_water);
     notifyListeners();
+    if (_backend != null) {
+      _backend!.setWater(key, next);
+    } else {
+      _storage.saveWater(_water);
+    }
   }
 
   // ---------------------------------------------------------------- chat
@@ -202,15 +298,20 @@ class AppState extends ChangeNotifier {
     final trimmed = text?.trim();
     final hasText = trimmed != null && trimmed.isNotEmpty;
     if (!hasText && imagePath == null) return;
-    _messages.add(ChatMessage(
+    final message = ChatMessage(
       id: _nextId(),
       author: MessageAuthor.patient,
       sentAt: DateTime.now(),
       text: hasText ? trimmed : null,
       imagePath: imagePath,
-    ));
-    _storage.saveMessages(_messages);
+    );
+    _messages.add(message);
     notifyListeners();
+    if (_backend != null) {
+      _backend!.sendMessage(message);
+    } else {
+      _storage.saveMessages(_messages);
+    }
   }
 
   // ---------------------------------------------------------------- lembretes

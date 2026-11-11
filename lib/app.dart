@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'screens/home_shell.dart';
 
 class NutriApp extends StatelessWidget {
-  const NutriApp({super.key});
+  const NutriApp({super.key, this.home = const HomeShell()});
+
+  final Widget home;
 
   /// Cor principal do app. Trocar aqui quando houver a identidade do consultório.
   static const brandColor = Color(0xFF2E7D5B);
@@ -41,7 +43,7 @@ class NutriApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const HomeShell(),
+      home: home,
     );
   }
 }

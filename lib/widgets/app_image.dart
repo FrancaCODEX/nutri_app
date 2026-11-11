@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-/// Mostra uma imagem de URL (http) ou de arquivo local.
+/// Mostra uma imagem a partir de URL (http), "data URI" (base64) ou arquivo local.
 class AppImage extends StatelessWidget {
   const AppImage(this.source, {super.key, this.height, this.width, this.fit = BoxFit.cover});
 
@@ -11,15 +12,32 @@ class AppImage extends StatelessWidget {
   final double? width;
   final BoxFit fit;
 
+  static final _cache = <String, MemoryImage>{};
+
+  static ImageProvider providerFor(String source) {
+    if (source.startsWith('http')) return NetworkImage(source);
+    if (source.startsWith('data:')) {
+      return _cache.putIfAbsent(source, () {
+        final comma = source.indexOf(',');
+        return MemoryImage(base64Decode(source.substring(comma + 1)));
+      });
+    }
+    return FileImage(File(source));
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget fallback(BuildContext _, Object __, StackTrace? ___) => SizedBox(
-          height: height,
-          width: width,
-          child: const Center(child: Icon(Icons.image_not_supported_outlined)),
-        );
-    return source.startsWith('http')
-        ? Image.network(source, height: height, width: width, fit: fit, errorBuilder: fallback)
-        : Image.file(File(source), height: height, width: width, fit: fit, errorBuilder: fallback);
+    return Image(
+      image: providerFor(source),
+      height: height,
+      width: width,
+      fit: fit,
+      gaplessPlayback: true,
+      errorBuilder: (_, __, ___) => SizedBox(
+        height: height ?? 80,
+        width: width,
+        child: const Center(child: Icon(Icons.image_not_supported_outlined)),
+      ),
+    );
   }
 }

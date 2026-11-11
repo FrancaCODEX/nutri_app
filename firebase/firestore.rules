@@ -1,0 +1,64 @@
+rules_version = '2';
+
+// Regras de segurança do Firestore do Nutri App.
+// Publicar em: Console do Firebase → Firestore Database → Regras.
+//
+// A nutricionista é identificada pelo e-mail cadastrado no documento
+// config/clinic (campo nutritionistEmail), com e-mail verificado.
+// Pacientes só acessam os próprios dados e só existem se a nutricionista
+// tiver criado o cadastro em patients/{uid}.
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isNutri() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email
+             == get(/databases/$(db)/documents/config/clinic).data.nutritionistEmail;
+    }
+
+    function isPatient(uid) {
+      return signedIn()
+        && request.auth.uid == uid
+        && exists(/databases/$(db)/documents/patients/$(uid));
+    }
+
+    match /config/{doc} {
+      allow read: if signedIn();
+      allow write: if false; // editar só pelo console
+    }
+
+    match /recipes/{id} {
+      allow read: if signedIn();
+      allow write: if isNutri();
+    }
+
+    match /patients/{uid} {
+      allow read: if isNutri() || isPatient(uid);
+      allow create, delete: if isNutri();
+      allow update: if isNutri()
+        || (isPatient(uid)
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['lastSeenAt', 'lastPatientMessageAt']));
+
+      match /diary/{id} {
+        allow read, write: if isNutri() || isPatient(uid);
+      }
+
+      match /water/{day} {
+        allow read, write: if isNutri() || isPatient(uid);
+      }
+
+      match /messages/{id} {
+        allow read: if isNutri() || isPatient(uid);
+        allow create: if (isPatient(uid) && request.resource.data.author == 'patient')
+                      || (isNutri() && request.resource.data.author == 'nutritionist');
+        allow update, delete: if false;
+      }
+    }
+  }
+}

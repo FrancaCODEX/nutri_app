@@ -23,22 +23,24 @@
 - Aba "Hoje": calorias, água, próxima refeição e evolução semanal
 - Área da nutricionista no aparelho: editar cardápio e criar receitas com foto
 
-## v0.4: Paciente e nutricionista conectados (Firebase)
+## v0.4: Paciente e nutricionista conectados ✅
 
-Pré-requisito: projeto Firebase do consultório (ver [FIREBASE.md](FIREBASE.md)).
-
-- Login: nutricionista e pacientes (por convite)
+- Login: nutricionista (e-mail confirmado) e pacientes (cadastrados por ela)
 - Cardápio, receitas, diário e água sincronizados no Firestore
-- Chat em tempo real com **fotos** (Storage) e **notificação de nova mensagem** (FCM)
-- Área da nutricionista vira acesso restrito por login, com lista de pacientes
-- Consentimento LGPD
+- Chat em tempo real com fotos
+- App da nutricionista: pacientes, chat, cardápio, acompanhamento e receitas
+
+## v0.4.x: Pendências da v0.4
+
+- Plano Blaze: notificação de mensagem com o app fechado (Cloud Functions + FCM)
+  e fotos no Cloud Storage
+- Consentimento LGPD, política de privacidade e exclusão de conta
 
 ## v0.5: Painel completo da nutricionista
 
-- Lista de pacientes com último acesso e adesão (dias com registro, água)
-- Visualizar o diário e a evolução de cada paciente
-- Modelos de cardápio reutilizáveis
-- Caixa de entrada única do chat
+- Modelos de cardápio reutilizáveis e histórico de cardápios
+- Indicadores de adesão de todos os pacientes numa só tela
+- Anotações da consulta por paciente
 - Versão web (Flutter Web) para usar no computador do consultório
 
 ## v1.0: Publicação

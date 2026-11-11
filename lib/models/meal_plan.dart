@@ -82,6 +82,15 @@ class MealPlan {
     this.generalNotes,
   });
 
+  /// Cardápio vazio (paciente ainda sem cardápio cadastrado).
+  factory MealPlan.empty({String patientName = '', String nutritionistName = ''}) => MealPlan(
+        patientName: patientName,
+        nutritionistName: nutritionistName,
+        createdAt: DateTime.now(),
+        kcalTarget: 2000,
+        meals: const [],
+      );
+
   final String patientName;
   final String nutritionistName;
   final DateTime createdAt;

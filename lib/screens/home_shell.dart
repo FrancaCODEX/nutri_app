@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
+
 import 'chat_screen.dart';
 import 'diary_screen.dart';
 import 'meal_plan_screen.dart';
@@ -8,7 +10,10 @@ import 'today_screen.dart';
 
 /// Navegação principal com as cinco áreas do app.
 class HomeShell extends StatefulWidget {
-  const HomeShell({super.key});
+  const HomeShell({super.key, this.auth});
+
+  /// Presente quando o paciente está logado.
+  final AuthService? auth;
 
   @override
   State<HomeShell> createState() => _HomeShellState();
@@ -26,7 +31,7 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final pages = [
       TodayScreen(onOpenMealPlan: () => _go(_mealPlanTab), onOpenDiary: () => _go(_diaryTab)),
-      const MealPlanScreen(),
+      MealPlanScreen(auth: widget.auth),
       const RecipesScreen(),
       const DiaryScreen(),
       const ChatScreen(),

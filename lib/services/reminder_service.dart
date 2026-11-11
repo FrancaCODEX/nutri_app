@@ -81,6 +81,27 @@ class LocalReminderService implements ReminderScheduler {
     await _plugin.cancelAll();
   }
 
+  static const _messageDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'mensagens',
+      'Mensagens',
+      channelDescription: 'Novas mensagens no chat',
+      importance: Importance.high,
+      priority: Priority.high,
+    ),
+  );
+
+  /// Notificação imediata de mensagem nova (app aberto ou em segundo plano).
+  Future<void> showMessage(String title, String body) async {
+    await _init();
+    await _plugin.show(
+      id: 1000 + DateTime.now().millisecondsSinceEpoch % 100000,
+      title: title,
+      body: body,
+      notificationDetails: _messageDetails,
+    );
+  }
+
   /// Converte "HH:mm" na próxima ocorrência desse horário.
   static tz.TZDateTime? _nextInstanceOf(String hhmm) {
     final parts = hhmm.split(':');

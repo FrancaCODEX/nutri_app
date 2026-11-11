@@ -2,13 +2,21 @@ import 'package:flutter/material.dart';
 
 import '../../models/meal_plan.dart';
 import '../../models/meal_type.dart';
-import '../../state/app_state.dart';
+import '../../models/recipe.dart';
 
 /// Edita uma refeição do cardápio: horário, opção principal e alternativas.
 class MealEditorScreen extends StatefulWidget {
-  const MealEditorScreen({super.key, this.initial});
+  const MealEditorScreen({super.key, this.initial, required this.recipes});
 
   final PlannedMeal? initial;
+  final List<Recipe> recipes;
+
+  Recipe? recipeById(String id) {
+    for (final r in recipes) {
+      if (r.id == id) return r;
+    }
+    return null;
+  }
 
   @override
   State<MealEditorScreen> createState() => _MealEditorScreenState();
@@ -58,7 +66,13 @@ class _MealEditorScreenState extends State<MealEditorScreen> {
   }
 
   Future<void> _pickRecipes(_OptionDraft draft) async {
-    final recipes = AppStateScope.read(context).recipes;
+    final recipes = widget.recipes;
+    if (recipes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cadastre receitas primeiro na aba Receitas.')),
+      );
+      return;
+    }
     final selected = {...draft.recipeIds};
     final result = await showModalBottomSheet<Set<String>>(
       context: context,
@@ -121,7 +135,6 @@ class _MealEditorScreenState extends State<MealEditorScreen> {
   }
 
   Widget _optionEditor(_OptionDraft draft, String label, {VoidCallback? onRemove}) {
-    final state = AppStateScope.read(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -151,7 +164,7 @@ class _MealEditorScreenState extends State<MealEditorScreen> {
               runSpacing: 4,
               children: [
                 for (final id in draft.recipeIds)
-                  if (state.recipeById(id) case final r?)
+                  if (widget.recipeById(id) case final r?)
                     Chip(
                       label: Text(r.title),
                       onDeleted: () => setState(() => draft.recipeIds.remove(id)),

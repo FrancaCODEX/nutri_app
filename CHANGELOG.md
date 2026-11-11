@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.4.0] - 2026-11-12
+
+### Adicionado
+- **Firebase** (Authentication + Firestore, projeto `nutri-app-42226`).
+- **Login** com e-mail e senha, recuperação de senha e troca de senha.
+- **Primeiro acesso da nutricionista** com confirmação de e-mail; o e-mail dela fica
+  em `config/clinic` no Firestore (fora do código).
+- **App da nutricionista**:
+  - aba Pacientes: busca, último acesso, aviso de mensagem não lida e
+    **cadastro de paciente** com senha provisória e mensagem pronta para enviar;
+  - por paciente: **chat**, **cardápio** (montar/editar) e **acompanhamento**
+    (gráfico de 7 dias, dias com registro, água e o que foi comido hoje);
+  - aba Receitas: publicar com foto para todos os pacientes; importar receitas de exemplo.
+- **App do paciente conectado**: cardápio, receitas, diário, água e chat sincronizados.
+- **Chat em tempo real** com fotos (comprimidas e gravadas no Firestore, sem precisar do Storage).
+- Notificação de mensagem nova da nutricionista com o app aberto ou em segundo plano.
+- Regras de segurança em `firebase/firestore.rules`.
+
+### Alterado
+- A antiga "Área da nutricionista" local foi substituída pelo app da nutricionista com login.
+- Se outra conta entrar no mesmo aparelho, os dados locais da anterior são apagados.
+
 ## [0.3.0] - 2026-11-11
 
 ### Adicionado

@@ -97,32 +97,30 @@ Tela: `chat_screen.dart`
 
 ## 6. Contas e acesso (v0.4)
 
-- Login por e-mail/senha (Firebase Auth).
-- Paciente entra por convite da nutricionista (sem cadastro aberto).
-- Papéis: `patient` e `nutritionist`.
-
-## 7. Painel da nutricionista (v0.5)
-
-- Lista de pacientes e último acesso.
-- Criação de cardápios a partir de modelos.
-- Cadastro de receitas com foto.
-- Caixa de entrada do chat com todos os pacientes.
-- Visualização dos diários.
-
-## 8. Área da nutricionista no aparelho (v0.3)
-
-Telas: `lib/screens/nutri/` · Acesso: Configurações → Área da nutricionista
+Telas: `lib/screens/auth/` · Serviço: `services/auth_service.dart`
 
 | Requisito | Status |
 |-----------|--------|
-| Editar paciente, nutricionista, meta de kcal, meta de água e orientações | ✅ v0.3 |
-| Adicionar, editar e remover refeições (tipo, horário, observação) | ✅ v0.3 |
-| Opção principal e alternativas, cada uma com receitas ligadas | ✅ v0.3 |
-| Aviso ao sair com alterações não salvas | ✅ v0.3 |
-| Criar, editar e excluir receitas com foto (câmera/galeria), ingredientes e preparo um por linha, tags | ✅ v0.3 |
-| Lembretes reagendados ao salvar o cardápio | ✅ v0.3 |
-| Acesso restrito por login | ⏳ v0.4 |
+| Login por e-mail e senha | ✅ |
+| Esqueci minha senha (link por e-mail) | ✅ |
+| Alterar senha (Configurações / Conta) | ✅ |
+| Primeiro acesso da nutricionista com confirmação de e-mail | ✅ |
+| Paciente criado pela nutricionista com senha provisória | ✅ |
+| Conta sem cadastro não acessa dados | ✅ |
+| Sair da conta | ✅ |
 
-**Regra:** nesta versão a área não tem senha, porque o app ainda roda em um único
-aparelho. Ela serve para a nutricionista montar o cardápio e as receitas e testar
-como o paciente verá. Na v0.4 o acesso passa a depender do login de nutricionista.
+## 7. App da nutricionista (v0.4)
+
+Telas: `lib/screens/nutri/`
+
+| Requisito | Status |
+|-----------|--------|
+| Lista de pacientes com busca, último acesso e não lidas primeiro | ✅ |
+| Contador de conversas não lidas na aba | ✅ |
+| Cadastro de paciente + mensagem pronta com acesso (copiar) | ✅ |
+| Chat com o paciente (texto e foto) | ✅ |
+| Montar/editar o cardápio do paciente (alternativas, receitas ligadas, metas) | ✅ |
+| Acompanhamento: kcal dos 7 dias, dias com registro, água, o que comeu hoje | ✅ |
+| Publicar, editar e excluir receitas com foto | ✅ |
+| Importar receitas de exemplo | ✅ |
+| Notificação de mensagem nova com o app fechado | ⏳ plano Blaze |

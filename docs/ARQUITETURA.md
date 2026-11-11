@@ -36,6 +36,23 @@ O app usa apenas o Flutter SDK:
 Isso evita dependências externas na fase inicial. Se o app crescer, a migração
 natural é para `provider` ou `riverpod`, mantendo a mesma separação de camadas.
 
+## Login e papéis (v0.4)
+
+```
+main → Firebase.initializeApp → AuthGate
+  sem usuário            → LoginScreen
+  e-mail = config/clinic → NutriHomeScreen (usa CloudRepository direto, com streams)
+  existe patients/{uid}  → AppState + FirestorePatientBackend → HomeShell
+  outro                  → tela "Conta sem cadastro"
+```
+
+- `CloudRepository` (`data/cloud_repository.dart`) concentra o acesso ao Firestore.
+- `PatientBackend` (`state/patient_backend.dart`) é a interface que o `AppState`
+  usa quando o paciente está logado: assina os streams (cardápio, receitas,
+  diário, água, mensagens) e envia as alterações. Nos testes é trocada por uma
+  versão em memória (`test/cloud_sync_test.dart`).
+- Sem backend (testes e modo local), o `AppState` continua salvando no aparelho.
+
 ## Inicialização
 
 `main.dart` abre o armazenamento local e carrega a TACO em paralelo, cria o
@@ -87,4 +104,5 @@ usam `Navigator.push`.
 | `search_and_measures_test.dart` | carga da TACO, busca e medidas caseiras |
 | `app_state_test.dart` | persistência, desfazer, favoritos, chat, lembretes, recentes |
 | `plan_and_tracking_test.dart` | cardápio (JSON, ordem, próxima refeição, edição), receitas próprias, água, histórico semanal |
+| `cloud_sync_test.dart` | sincronização com a nuvem, envio de alterações, aviso de mensagem nova, não lidas, troca de conta |
 | `widget_test.dart` | navegação, água e registro de alimento com medida caseira |

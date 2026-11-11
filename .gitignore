@@ -13,10 +13,8 @@ coverage/
 *.iml
 .vscode/
 
-# Firebase (credenciais locais)
-google-services.json
+# Firebase: GoogleService-Info.plist (iOS) ainda não usado
 GoogleService-Info.plist
-lib/firebase_options.dart
 
 # SO
 .DS_Store

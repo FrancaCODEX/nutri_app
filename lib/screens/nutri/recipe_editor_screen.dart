@@ -2,14 +2,22 @@ import 'package:flutter/material.dart';
 
 import '../../models/recipe.dart';
 import '../../services/photo_service.dart';
-import '../../state/app_state.dart';
 import '../../widgets/app_image.dart';
 
 /// Criação e edição de receitas pela nutricionista.
 class RecipeEditorScreen extends StatefulWidget {
-  const RecipeEditorScreen({super.key, this.initial});
+  const RecipeEditorScreen({
+    super.key,
+    this.initial,
+    required this.newId,
+    required this.onSave,
+    this.onDelete,
+  });
 
   final Recipe? initial;
+  final String Function() newId;
+  final Future<void> Function(Recipe recipe) onSave;
+  final Future<void> Function()? onDelete;
 
   @override
   State<RecipeEditorScreen> createState() => _RecipeEditorScreenState();
@@ -48,8 +56,11 @@ class _RecipeEditorScreenState extends State<RecipeEditorScreen> {
 
   Future<void> _pickPhoto(bool fromCamera) async {
     try {
-      final path = await _photos.pick(fromCamera: fromCamera, folder: 'recipe_photos');
-      if (path != null) setState(() => _image = path);
+      final image = await _photos.pick(fromCamera: fromCamera);
+      if (image != null) setState(() => _image = image);
+    } on PhotoTooLargeException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -58,11 +69,12 @@ class _RecipeEditorScreenState extends State<RecipeEditorScreen> {
     }
   }
 
-  void _save() {
-    if (!_formKey.currentState!.validate()) return;
-    final state = AppStateScope.read(context);
-    state.saveRecipe(Recipe(
-      id: widget.initial?.id ?? state.newRecipeId(),
+  bool _saving = false;
+
+  Future<void> _save() async {
+    if (_saving || !_formKey.currentState!.validate()) return;
+    final recipe = Recipe(
+      id: widget.initial?.id ?? widget.newId(),
       title: _title.text.trim(),
       category: _category,
       ingredients: _lines(_ingredients.text),
@@ -73,8 +85,18 @@ class _RecipeEditorScreenState extends State<RecipeEditorScreen> {
       imageUrl: _image,
       tags: _tags.text.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList(),
       isCustom: true,
-    ));
-    Navigator.of(context).pop();
+    );
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    setState(() => _saving = true);
+    try {
+      await widget.onSave(recipe);
+      navigator.pop();
+    } catch (_) {
+      messenger.showSnackBar(const SnackBar(content: Text('Não foi possível salvar. Verifique a internet.')));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   Future<void> _delete() async {
@@ -90,8 +112,9 @@ class _RecipeEditorScreenState extends State<RecipeEditorScreen> {
       ),
     );
     if (confirm != true || !mounted) return;
-    AppStateScope.read(context).deleteRecipe(widget.initial!.id);
-    Navigator.of(context).pop();
+    final navigator = Navigator.of(context);
+    await widget.onDelete?.call();
+    navigator.pop();
   }
 
   @override
@@ -100,7 +123,7 @@ class _RecipeEditorScreenState extends State<RecipeEditorScreen> {
       appBar: AppBar(
         title: Text(widget.initial == null ? 'Nova receita' : 'Editar receita'),
         actions: [
-          if (widget.initial != null)
+          if (widget.initial != null && widget.onDelete != null)
             IconButton(tooltip: 'Excluir', onPressed: _delete, icon: const Icon(Icons.delete_outline)),
           TextButton(onPressed: _save, child: const Text('Salvar')),
         ],

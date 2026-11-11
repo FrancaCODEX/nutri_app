@@ -2,14 +2,23 @@ import 'package:flutter/material.dart';
 
 import '../../models/meal_plan.dart';
 import '../../models/meal_type.dart';
-import '../../state/app_state.dart';
+import '../../models/recipe.dart';
 import 'meal_editor_screen.dart';
 
 /// Edição do cardápio entregue ao paciente.
 class MealPlanEditorScreen extends StatefulWidget {
-  const MealPlanEditorScreen({super.key, required this.initial});
+  const MealPlanEditorScreen({
+    super.key,
+    required this.initial,
+    required this.recipes,
+    required this.onSave,
+  });
 
   final MealPlan initial;
+
+  /// Receitas disponíveis para ligar às opções.
+  final List<Recipe> recipes;
+  final Future<void> Function(MealPlan plan) onSave;
 
   @override
   State<MealPlanEditorScreen> createState() => _MealPlanEditorScreenState();
@@ -36,7 +45,10 @@ class _MealPlanEditorScreenState extends State<MealPlanEditorScreen> {
   Future<void> _editMeal([int? index]) async {
     final result = await Navigator.of(context).push<PlannedMeal>(
       MaterialPageRoute(
-        builder: (_) => MealEditorScreen(initial: index == null ? null : _meals[index]),
+        builder: (_) => MealEditorScreen(
+          initial: index == null ? null : _meals[index],
+          recipes: widget.recipes,
+        ),
       ),
     );
     if (result == null) return;
@@ -74,10 +86,16 @@ class _MealPlanEditorScreenState extends State<MealPlanEditorScreen> {
       meals: _meals,
       createdAt: DateTime.now(),
     );
-    await AppStateScope.read(context).updateMealPlan(plan);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cardápio salvo.')));
-    Navigator.of(context).pop();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    try {
+      await widget.onSave(plan);
+      _dirty = false;
+      messenger.showSnackBar(const SnackBar(content: Text('Cardápio salvo.')));
+      navigator.pop();
+    } catch (_) {
+      messenger.showSnackBar(const SnackBar(content: Text('Não foi possível salvar. Verifique a internet.')));
+    }
   }
 
   Future<bool> _confirmDiscard() async {

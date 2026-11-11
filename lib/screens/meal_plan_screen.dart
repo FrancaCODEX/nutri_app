@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/meal_plan.dart';
+import '../services/auth_service.dart';
 import '../state/app_state.dart';
 import 'recipe_detail_screen.dart';
 import 'settings_screen.dart';
 
 /// Cardápio digital entregue na consulta, com opções alternativas.
 class MealPlanScreen extends StatelessWidget {
-  const MealPlanScreen({super.key});
+  const MealPlanScreen({super.key, this.auth});
+
+  final AuthService? auth;
 
   @override
   Widget build(BuildContext context) {
-    final plan = AppStateScope.of(context).mealPlan;
+    final state = AppStateScope.of(context);
+    final plan = state.mealPlan;
     final date = DateFormat("d 'de' MMMM 'de' y", 'pt_BR').format(plan.createdAt);
 
     return Scaffold(
@@ -23,12 +27,25 @@ class MealPlanScreen extends StatelessWidget {
             tooltip: 'Configurações',
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              MaterialPageRoute(builder: (_) => SettingsScreen(auth: auth)),
             ),
           ),
         ],
       ),
-      body: ListView(
+      body: !state.mealPlanReady
+          ? const Center(child: CircularProgressIndicator())
+          : plan.meals.isEmpty
+          ? const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: Text(
+                  'Sua nutricionista ainda não cadastrou seu cardápio.\n'
+                  'Ele aparece aqui assim que for publicado.',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            )
+          : ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Text('Consulta de $date', style: Theme.of(context).textTheme.bodySmall),
