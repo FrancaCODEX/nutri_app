@@ -2,7 +2,7 @@
 
 ## Ambiente
 
-- Flutter 3.22+ (`flutter --version`)
+- Flutter 3.47.9 (mesma versão fixada em `.github/workflows/build-apk.yml`)
 - Rodar `flutter analyze` e `flutter test` antes de cada commit
 
 ## Branches

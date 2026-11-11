@@ -22,6 +22,8 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          # Versão fixa para builds reproduzíveis; atualizar junto com o ambiente local.
+          flutter-version: '3.47.9'
           cache: true
 
       - name: Dependências
