@@ -9,6 +9,7 @@ import '../models/food.dart';
 import '../models/meal_plan.dart';
 import '../models/meal_type.dart';
 import '../models/recipe.dart';
+import '../services/nutrition_calculator.dart';
 import '../services/reminder_service.dart';
 import '../services/text_search.dart';
 
@@ -25,7 +26,10 @@ class AppState extends ChangeNotifier {
         _reminders = reminders,
         _diary = storage.loadDiary(),
         _favorites = storage.loadFavorites(),
-        _remindersEnabled = storage.loadRemindersEnabled() {
+        _remindersEnabled = storage.loadRemindersEnabled(),
+        _mealPlan = storage.loadMealPlan() ?? sampleMealPlan,
+        _customRecipes = storage.loadCustomRecipes(),
+        _water = storage.loadWater() {
     final saved = storage.loadMessages();
     _messages = saved.isNotEmpty ? saved : [_welcomeMessage()];
   }
@@ -33,9 +37,11 @@ class AppState extends ChangeNotifier {
   final LocalStorage _storage;
   final ReminderScheduler _reminders;
 
-  final MealPlan mealPlan = sampleMealPlan;
-  final List<Recipe> recipes = List.of(sampleRecipes);
   final List<Food> foods;
+
+  MealPlan _mealPlan;
+  final List<Recipe> _customRecipes;
+  final Map<String, int> _water;
 
   final List<DiaryEntry> _diary;
   late final List<ChatMessage> _messages;
@@ -52,7 +58,44 @@ class AppState extends ChangeNotifier {
         text: 'Oi! Qualquer dúvida sobre o cardápio, me chama por aqui.',
       );
 
+  // ---------------------------------------------------------------- cardápio
+
+  MealPlan get mealPlan => _mealPlan;
+
+  /// Substitui o cardápio (área da nutricionista) e reagenda os lembretes.
+  Future<void> updateMealPlan(MealPlan plan) async {
+    _mealPlan = plan;
+    await _storage.saveMealPlan(plan);
+    notifyListeners();
+    await refreshReminders();
+  }
+
   // ---------------------------------------------------------------- receitas
+
+  /// Receitas criadas pela nutricionista primeiro, depois as de exemplo.
+  List<Recipe> get recipes => [..._customRecipes.reversed, ...sampleRecipes];
+
+  String newRecipeId() => 'r_${_nextId()}';
+
+  /// Cria ou atualiza uma receita da nutricionista.
+  void saveRecipe(Recipe recipe) {
+    final i = _customRecipes.indexWhere((r) => r.id == recipe.id);
+    if (i >= 0) {
+      _customRecipes[i] = recipe;
+    } else {
+      _customRecipes.add(recipe);
+    }
+    _storage.saveCustomRecipes(_customRecipes);
+    notifyListeners();
+  }
+
+  void deleteRecipe(String id) {
+    _customRecipes.removeWhere((r) => r.id == id);
+    _favorites.remove(id);
+    _storage.saveCustomRecipes(_customRecipes);
+    _storage.saveFavorites(_favorites);
+    notifyListeners();
+  }
 
   Recipe? recipeById(String id) {
     for (final r in recipes) {
@@ -123,6 +166,34 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Total de kcal por dia nos últimos [days] dias (mais antigo primeiro).
+  List<(DateTime, double)> kcalHistory(DateTime today, {int days = 7}) {
+    final base = DateUtils.dateOnly(today);
+    return [
+      for (var i = days - 1; i >= 0; i--)
+        () {
+          final day = base.subtract(Duration(days: i));
+          return (day, NutritionCalculator.total(entriesFor(day)).kcal);
+        }(),
+    ];
+  }
+
+  // ---------------------------------------------------------------- água
+
+  static String _dayKey(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  int waterFor(DateTime day) => _water[_dayKey(day)] ?? 0;
+
+  /// Soma (ou subtrai, se negativo) água do dia, sem ficar abaixo de zero.
+  void addWater(DateTime day, int ml) {
+    final key = _dayKey(day);
+    final next = ((_water[key] ?? 0) + ml).clamp(0, 10000);
+    _water[key] = next;
+    _storage.saveWater(_water);
+    notifyListeners();
+  }
+
   // ---------------------------------------------------------------- chat
 
   List<ChatMessage> get messages => List.unmodifiable(_messages);
@@ -151,7 +222,7 @@ class AppState extends ChangeNotifier {
     if (enabled) {
       final granted = await _reminders.requestPermission();
       if (!granted) return false;
-      await _reminders.scheduleMeals(mealPlan.meals);
+      await _reminders.scheduleMeals(_mealPlan.sortedMeals);
     } else {
       await _reminders.cancelAll();
     }
@@ -163,7 +234,7 @@ class AppState extends ChangeNotifier {
 
   /// Reagenda os lembretes ao abrir o app (horários podem ter mudado).
   Future<void> refreshReminders() async {
-    if (_remindersEnabled) await _reminders.scheduleMeals(mealPlan.meals);
+    if (_remindersEnabled) await _reminders.scheduleMeals(_mealPlan.sortedMeals);
   }
 }
 

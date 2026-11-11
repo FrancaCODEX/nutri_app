@@ -1,7 +1,7 @@
 name: nutri_app
 description: App do consultório de nutrição - cardápio digital, receitas, diário alimentar com base na TACO e chat com a nutricionista.
 publish_to: 'none'
-version: 0.2.0+2
+version: 0.3.0+3
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -28,6 +28,7 @@ flutter:
 
   assets:
     - assets/data/taco.json
+    - assets/icon/logo_mark.png
 
 flutter_launcher_icons:
   android: true

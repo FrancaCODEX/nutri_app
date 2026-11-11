@@ -1,5 +1,7 @@
 # Nutri App
 
+<img src="assets/icon/icon.png" alt="Nutri App" width="96">
+
 Aplicativo do consultório de nutrição para acompanhar o paciente **entre as consultas**.
 
 ## O problema
@@ -16,12 +18,13 @@ registro do que ele comeu e um canal direto com a nutricionista.
 
 | Área | O que faz | Status |
 |------|-----------|--------|
-| **Cardápio** | Cardápio digital entregue na consulta, refeição por refeição, com **opções alternativas** equivalentes e link para as receitas | ✅ (dados de exemplo) |
+| **Hoje** | Resumo do dia: calorias vs. meta, **água**, próxima refeição e **evolução dos últimos 7 dias** | ✅ v0.3 |
+| **Cardápio** | Cardápio digital entregue na consulta, refeição por refeição, com **opções alternativas** equivalentes e link para as receitas | ✅ |
 | **Lembretes** | Notificação no horário de cada refeição do cardápio | ✅ v0.2 |
 | **Receitas** | Receitas doces, salgadas, lanches e bebidas, com busca, filtro e **favoritas** | ✅ (dados de exemplo) |
 | **Diário alimentar** | Busca nos **597 alimentos da Tabela TACO**, porção em **medidas caseiras** ou gramas, cálculo automático de calorias e macronutrientes, dados **salvos no celular** | ✅ v0.2 |
-| **Chat** | Conversa com a nutricionista, com **fotos** (câmera ou galeria) | 🟡 v0.2 salvo só no aparelho; entrega real e notificação de resposta com o Firebase (v0.3) |
-| **Painel da nutricionista** | Cadastro de pacientes, cardápios e receitas; resposta ao chat | ⏳ v0.4 |
+| **Chat** | Conversa com a nutricionista, com **fotos** (câmera ou galeria) | 🟡 salvo só no aparelho; entrega real e notificação de resposta com o Firebase (v0.4) |
+| **Área da nutricionista** | Editar o cardápio (refeições, horários, alternativas, metas) e criar receitas com foto | 🟡 v0.3 no aparelho; login e nuvem na v0.4 |
 
 Detalhes de cada funcionalidade em [`docs/FUNCIONALIDADES.md`](docs/FUNCIONALIDADES.md).
 
@@ -74,7 +77,8 @@ lib/
 ├── data/                     # TACO, armazenamento local e dados de exemplo
 ├── services/                 # regras de negócio (cálculo, busca, medidas, lembretes, fotos)
 ├── state/                    # estado da aplicação (AppState)
-└── screens/                  # telas
+├── widgets/                  # componentes reutilizáveis (imagem, gráfico semanal)
+└── screens/                  # telas (nutri/ = área da nutricionista)
 assets/
 ├── data/taco.json            # Tabela TACO completa (597 alimentos)
 └── icon/                     # ícone do app
@@ -89,6 +93,7 @@ docs/                         # documentação completa
 | Documento | Conteúdo |
 |-----------|----------|
 | [Visão do produto](docs/VISAO_DO_PRODUTO.md) | Problema, público, objetivos |
+| [Identidade visual](docs/IDENTIDADE_VISUAL.md) | Logo, cores e regras de uso |
 | [Funcionalidades](docs/FUNCIONALIDADES.md) | Requisitos e regras de cada área |
 | [Arquitetura](docs/ARQUITETURA.md) | Camadas, estado, fluxo de dados |
 | [Modelo de dados](docs/MODELO_DE_DADOS.md) | Entidades e coleções do Firestore |

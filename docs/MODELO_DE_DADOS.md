@@ -26,7 +26,7 @@ recipes/{recipeId}
   servings, prepMinutes, imageUrl, tags[], createdAt
 
 patients/{patientUid}/mealPlans/{planId}
-  createdAt, kcalTarget, generalNotes, active: bool,
+  createdAt, kcalTarget, waterTargetMl, generalNotes, active: bool,
   meals: [{ type, time, notes, main: {description, recipeIds[]},
             alternatives: [{description, recipeIds[]}] }]
 
@@ -34,6 +34,9 @@ patients/{patientUid}/diary/{entryId}
   date (yyyy-MM-dd), meal, foodId, foodName, grams,
   kcal, protein, carbs, fat, createdAt
   # valores calculados são gravados para preservar o histórico
+
+patients/{patientUid}/water/{yyyy-MM-dd}
+  ml, updatedAt
 
 chats/{patientUid}/messages/{messageId}
   author: "patient" | "nutritionist", text, imageUrl, sentAt, readAt

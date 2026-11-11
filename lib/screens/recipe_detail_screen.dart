@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/recipe.dart';
 import '../state/app_state.dart';
+import '../widgets/app_image.dart';
 
 class RecipeDetailScreen extends StatelessWidget {
   const RecipeDetailScreen({super.key, required this.recipe});
@@ -31,8 +32,9 @@ class RecipeDetailScreen extends StatelessWidget {
           if (recipe.imageUrl != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(recipe.imageUrl!, height: 200, fit: BoxFit.cover),
+              child: AppImage(recipe.imageUrl!, height: 220, width: double.infinity),
             ),
+          if (recipe.imageUrl != null) const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             children: [

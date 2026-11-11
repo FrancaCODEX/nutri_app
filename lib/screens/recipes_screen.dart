@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/recipe.dart';
 import '../state/app_state.dart';
+import '../widgets/app_image.dart';
 import 'recipe_detail_screen.dart';
 
 /// Lista de receitas com filtro por categoria e busca.
@@ -77,7 +78,12 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     itemBuilder: (context, i) {
                       final r = recipes[i];
                       return ListTile(
-                        leading: CircleAvatar(child: Text(r.category.label[0])),
+                        leading: r.imageUrl != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: AppImage(r.imageUrl!, width: 48, height: 48),
+                              )
+                            : CircleAvatar(child: Text(r.category.label[0])),
                         title: Text(r.title),
                         subtitle: Text(
                             '${r.kcalPerServing.round()} kcal/porção · ${r.prepMinutes} min'),

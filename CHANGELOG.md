@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.0] - 2026-11-11
+
+### Adicionado
+- **Nova logo**: maçã minimalista em verde, com versão para fundo claro (`assets/icon/logo_mark.png`).
+- **Aba "Hoje"** (tela inicial): calorias do dia com anel de progresso, macronutrientes,
+  controle de **água** (+/− copo de 250 ml) com meta, **próxima refeição** e
+  **gráfico dos últimos 7 dias** com linha de meta.
+- **Área da nutricionista** (Configurações → Área da nutricionista):
+  - editar o cardápio: paciente, metas de calorias e água, orientações, refeições,
+    horários, opção principal, **alternativas** e receitas ligadas;
+  - criar, editar e excluir **receitas com foto** (câmera ou galeria).
+- Lembretes reagendados automaticamente quando o cardápio muda.
+- Receitas com foto aparecem com miniatura na lista.
+
+### Alterado
+- Cardápio exibido sempre em ordem de horário; meta de água no cabeçalho.
+- Navegação com cinco abas: Hoje, Cardápio, Receitas, Diário e Chat.
+
 ## [0.2.0] - 2026-11-10
 
 ### Adicionado

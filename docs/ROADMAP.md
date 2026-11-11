@@ -1,13 +1,12 @@
 # Roadmap
 
-## Fase 1: Protótipo navegável ✅ (v0.1)
+## v0.1: Protótipo navegável ✅
 
 - Estrutura do projeto Flutter e documentação
 - Cardápio digital com alternativas e links para receitas
 - Receitas com busca e filtro
-- Diário alimentar com amostra da TACO e cálculo de calorias/macros
+- Diário alimentar com cálculo de calorias/macros
 - Chat local (texto)
-- Testes do cálculo nutricional
 
 ## v0.2: Funciona de verdade no celular ✅
 
@@ -18,25 +17,34 @@
 - Lembretes de refeição (notificações locais)
 - Receitas favoritas, configurações, ícone e tema
 
-## Fase 2 (v0.3): Backend e uso real
+## v0.3: Acompanhamento e área da nutricionista ✅
 
-- Firebase: Auth, Firestore, Storage, FCM
-- Repositórios e persistência dos dados
-- Chat em tempo real com **fotos** e **notificações**
-- Convite de pacientes
+- Logo definitiva (maçã minimalista)
+- Aba "Hoje": calorias, água, próxima refeição e evolução semanal
+- Área da nutricionista no aparelho: editar cardápio e criar receitas com foto
+
+## v0.4: Paciente e nutricionista conectados (Firebase)
+
+Pré-requisito: projeto Firebase do consultório (ver [FIREBASE.md](FIREBASE.md)).
+
+- Login: nutricionista e pacientes (por convite)
+- Cardápio, receitas, diário e água sincronizados no Firestore
+- Chat em tempo real com **fotos** (Storage) e **notificação de nova mensagem** (FCM)
+- Área da nutricionista vira acesso restrito por login, com lista de pacientes
 - Consentimento LGPD
 
-## Fase 3 (v0.4): Painel da nutricionista
+## v0.5: Painel completo da nutricionista
 
-- App/painel web (Flutter Web) para a nutricionista
-- Cadastro de pacientes, cardápios (com modelos) e receitas com foto
-- Caixa de entrada do chat
-- Visualização dos diários dos pacientes
+- Lista de pacientes com último acesso e adesão (dias com registro, água)
+- Visualizar o diário e a evolução de cada paciente
+- Modelos de cardápio reutilizáveis
+- Caixa de entrada única do chat
+- Versão web (Flutter Web) para usar no computador do consultório
 
-## Fase 4 (v1.0): Melhorias e publicação
+## v1.0: Publicação
 
 - Lista de compras a partir das receitas
 - Lembrete de água
-- Gráficos de evolução
-- Modo offline
+- Gráficos de peso e medidas
+- Modo offline com sincronização
 - Publicação na Play Store e App Store

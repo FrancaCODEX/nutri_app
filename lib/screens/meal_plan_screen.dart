@@ -32,7 +32,7 @@ class MealPlanScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Text('Consulta de $date', style: Theme.of(context).textTheme.bodySmall),
-          Text('Meta: ${plan.kcalTarget.round()} kcal/dia',
+          Text('Meta: ${plan.kcalTarget.round()} kcal/dia · água ${(plan.waterTargetMl / 1000).toStringAsFixed(1).replaceAll('.', ',')} L',
               style: Theme.of(context).textTheme.titleMedium),
           if (plan.generalNotes != null) ...[
             const SizedBox(height: 8),
@@ -44,7 +44,7 @@ class MealPlanScreen extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 8),
-          for (final meal in plan.meals) _MealCard(meal: meal),
+          for (final meal in plan.sortedMeals) _MealCard(meal: meal),
         ],
       ),
     );

@@ -12,6 +12,15 @@ void main() {
   testWidgets('navega pelas abas e registra alimento com medida caseira', (tester) async {
     final state = await buildState();
     await tester.pumpWidget(AppStateScope(state: state, child: const NutriApp()));
+    expect(find.text('Calorias de hoje'), findsOneWidget);
+
+    // Água: +1 copo
+    await tester.tap(find.text('+ 1 copo (250 ml)'));
+    await tester.pump();
+    expect(state.waterFor(DateTime.now()), 250);
+
+    await tester.tap(find.text('Cardápio'));
+    await tester.pumpAndSettle();
     expect(find.text('Meu cardápio'), findsOneWidget);
 
     await tester.tap(find.text('Receitas'));

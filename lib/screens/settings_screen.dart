@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../state/app_state.dart';
+import 'nutri/nutri_area_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
-  static const appVersion = '0.2.0';
+  static const appVersion = '0.3.0';
 
   Future<void> _toggleReminders(BuildContext context, bool value) async {
     final ok = await AppStateScope.read(context).setRemindersEnabled(value);
@@ -34,10 +35,20 @@ class SettingsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(72, 0, 16, 8),
               child: Text(
-                [for (final m in state.mealPlan.meals) '${m.time} ${m.type.label}'].join(' · '),
+                [for (final m in state.mealPlan.sortedMeals) '${m.time} ${m.type.label}'].join(' · '),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.badge_outlined),
+            title: const Text('Área da nutricionista'),
+            subtitle: const Text('Editar cardápio e criar receitas'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const NutriAreaScreen()),
+            ),
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.dataset_outlined),

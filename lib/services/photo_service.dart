@@ -10,7 +10,7 @@ class PhotoService {
   final ImagePicker _picker;
 
   /// Retorna o caminho da foto salva, ou `null` se o usuário cancelar.
-  Future<String?> pick({required bool fromCamera}) async {
+  Future<String?> pick({required bool fromCamera, String folder = 'chat_photos'}) async {
     final picked = await _picker.pickImage(
       source: fromCamera ? ImageSource.camera : ImageSource.gallery,
       maxWidth: 1600,
@@ -18,7 +18,7 @@ class PhotoService {
     );
     if (picked == null) return null;
 
-    final dir = Directory('${(await getApplicationDocumentsDirectory()).path}/chat_photos');
+    final dir = Directory('${(await getApplicationDocumentsDirectory()).path}/$folder');
     await dir.create(recursive: true);
     final dest = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
     await File(picked.path).copy(dest);

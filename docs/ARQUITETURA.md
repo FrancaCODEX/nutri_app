@@ -53,8 +53,11 @@ nos testes (`test/helpers/fakes.dart`).
 | Chat | `messages_v1` | lista JSON de `ChatMessage` |
 | Favoritos | `favorite_recipes_v1` | lista de ids |
 | Lembretes ligados | `meal_reminders_enabled_v1` | bool |
+| Cardápio editado | `meal_plan_v1` | JSON de `MealPlan` (se ausente, usa o de exemplo) |
+| Receitas da nutricionista | `custom_recipes_v1` | lista JSON de `Recipe` |
+| Água | `water_ml_by_day_v1` | mapa `yyyy-MM-dd` → ml |
 
-Fotos do chat são copiadas para `<documentos do app>/chat_photos/`.
+Fotos são copiadas para `<documentos do app>/chat_photos/` e `<documentos do app>/recipe_photos/`.
 
 ## Android
 
@@ -65,7 +68,7 @@ Fotos do chat são copiadas para `<documentos do app>/chat_photos/`.
 
 ## Navegação
 
-`HomeShell` tem uma `NavigationBar` com 4 abas (Cardápio, Receitas, Diário, Chat)
+`HomeShell` tem uma `NavigationBar` com 5 abas (Hoje, Cardápio, Receitas, Diário, Chat)
 dentro de um `IndexedStack`, que preserva o estado de cada aba. Telas de detalhe
 usam `Navigator.push`.
 
@@ -83,4 +86,5 @@ usam `Navigator.push`.
 | `nutrition_calculator_test.dart` | cálculo de porções e totais |
 | `search_and_measures_test.dart` | carga da TACO, busca e medidas caseiras |
 | `app_state_test.dart` | persistência, desfazer, favoritos, chat, lembretes, recentes |
-| `widget_test.dart` | navegação e registro de alimento com medida caseira |
+| `plan_and_tracking_test.dart` | cardápio (JSON, ordem, próxima refeição, edição), receitas próprias, água, histórico semanal |
+| `widget_test.dart` | navegação, água e registro de alimento com medida caseira |
